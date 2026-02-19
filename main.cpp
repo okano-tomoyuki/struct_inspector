@@ -1,6 +1,4 @@
 #include <iostream>
-#include <cstring>
-#include <string>
 
 #define ENABLE_ADD_STRUCT_INSPECTOR
 #include "struct_inspector.hpp"
@@ -27,7 +25,7 @@ struct A
     };
 
     B b[B_SIZE];
-    uint32_t value;
+    int value;
 };
 
 int main()
