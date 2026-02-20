@@ -9,6 +9,8 @@
 #include <cstdint>
 #include <utility>
 
+#include "inspector_dsl.hpp"
+
 class ConstStructInspector
 {
 public:
@@ -41,6 +43,29 @@ public:
         if (s.ti != std::type_index(typeid(T)))
             return nullptr;
         return static_cast<const T*>(s.ptr);
+    }
+
+    template <typename U>
+    void register_leaf(const std::string& key, const U* p)
+    {
+        add_impl(key, const_cast<U*>(p), std::type_index(typeid(U)));
+    }
+
+    struct RegisterLeafVisitor 
+    {
+        ConstStructInspector* self;
+        template <typename U>
+        void operator()(const std::string& key, const U* p) const 
+        {
+            self->register_leaf(key, p);
+        }
+    };
+
+    template <typename T>
+    void bind_struct(const T& root, const std::string& prefix = std::string())
+    {
+        RegisterLeafVisitor visitor{ this };
+        inspect_recursive(root, prefix, visitor);
     }
 
 private:
@@ -101,9 +126,5 @@ private:
     static std::string format_value_bool(bool v, const char* fmt);                    
     static std::string format_value_stream(const std::string&, const std::type_index&, const void*, const char* fmt); 
 };
-
-#ifdef ENABLE_ADD_STRUCT_INSPECTOR
-#define ADD_STRUCT_INSPECTOR(inspector, expr, ...) (inspector).add(#expr, (expr), ##__VA_ARGS__)
-#endif
 
 #endif
