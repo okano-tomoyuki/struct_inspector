@@ -6,8 +6,6 @@
 
 ``` cpp
 #include <iostream>
-
-#define ENABLE_ADD_STRUCT_INSPECTOR
 #include "struct_inspector.hpp"
 
 static constexpr int B_SIZE = 8;
@@ -35,54 +33,59 @@ struct A
     int value;
 };
 
+// D
+REGISTER_INSPECTOR(A::B::C::D)
+    FIELD(value)
+REGISTER_END()
+
+// C
+REGISTER_INSPECTOR(A::B::C)
+    FIELD(d)       // d[0], d[1], ...
+    FIELD(value)
+REGISTER_END()
+
+// B
+REGISTER_INSPECTOR(A::B)
+    FIELD(c)       // c[0], c[1], ...
+    FIELD(value)
+REGISTER_END()
+
+// A
+REGISTER_INSPECTOR(A)
+    FIELD(b)       // b[0], b[1], ...
+    FIELD(value)
+REGISTER_END()
+
 int main()
 {
-    ConstStructInspector inspector;
     A a = {};
 
-    auto bind_a =[](ConstStructInspector& inspector, const A& a)
-    {
-        ADD_STRUCT_INSPECTOR(inspector, a.value);
-        for (int i = 0; i < B_SIZE; i++)
-        {
-            ADD_STRUCT_INSPECTOR(inspector, a.b[i].value, i);
-            for (int j = 0; j < C_SIZE; j++)
-            {
-                ADD_STRUCT_INSPECTOR(inspector, a.b[i].c[j].value, i, j);
-                for (int k = 0; k < D_SIZE; k++)
-                {
-                    ADD_STRUCT_INSPECTOR(inspector, a.b[i].c[j].d[k].value, i, j, k);
-                }
-            }
-        }
-    };
+    ConstStructInspector ins;
+    ins.bind_struct(a, "a");
 
     std::string key;
     int count = 0;
     while (true)
     {
         count++;
-        auto copy_a = a;
         for (int i = 0; i < B_SIZE; i++)
         {
-            copy_a.b[i].value = (count * 10 + i * 1) % 2;
+            a.b[i].value = (count * 10 + i * 1) % 2;
             for (int j = 0; j < C_SIZE; j++)
             {
-                copy_a.b[i].c[j].value = count * 100 + i * 10 + j * 1;
+                a.b[i].c[j].value = count * 100 + i * 10 + j * 1;
                 for (int k = 0; k < D_SIZE; k++)
                 {
-                    copy_a.b[i].c[j].d[k].value = std::to_string(count * 1000 + i * 100 + j * 10 + k);
+                    a.b[i].c[j].d[k].value = std::to_string(count * 1000 + i * 100 + j * 10 + k);
                 }
             }
         }
 
-        bind_a(inspector, copy_a);
-
         std::cout << "input struct member full path : " << std::flush;
         std::cin >> key;
-        if (inspector.contains(key))
+        if (ins.contains(key))
         {
-            std::cout << key << " ... " << inspector.str(key) << " (type=" << inspector.type(key) << ")" << std::endl;
+            std::cout << key << " ... " << ins.str(key) << " (type=" << ins.type(key) << ")" << std::endl;
         }
         else
         {
@@ -92,7 +95,6 @@ int main()
 
     return 0;
 }
-
 ```
 
 ビルド
@@ -102,5 +104,5 @@ int main()
 
 実行
 ``` sh
-./struct_inspector
+./cpp_struct_inspector
 ```
