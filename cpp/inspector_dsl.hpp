@@ -1,3 +1,6 @@
+#ifndef INSPECTOR_DSL_HPP
+#define INSPECTOR_DSL_HPP
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -71,3 +74,5 @@ void inspect_recursive(const T &obj, const std::string &prefix, F &visitor, type
 #define FIELD(Member) inspect_recursive(obj.Member, (prefix.empty() ? #Member : prefix + "." + #Member), visitor);
 
 #define REGISTER_END() } };
+
+#endif
