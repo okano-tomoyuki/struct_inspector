@@ -5,7 +5,7 @@ typedef struct inspector_t inspector_t;
 
 inspector_t*    inspector_create(void);
 void            inspector_destroy(inspector_t* obj);
-void            inspector_add(inspector_t* obj, const char* name, const char* type, void* ref, int* indices, int indices_len);
+void            inspector_add(inspector_t* obj, const char* name, const char* type_name, void* ref);
 int             inspector_contains(const inspector_t* obj, const char* name);
 const char*     inspector_type(const inspector_t* obj, const char* name);
 void*           inspector_get(const inspector_t* obj, const char* name);

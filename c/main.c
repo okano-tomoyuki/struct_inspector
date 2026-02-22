@@ -3,50 +3,72 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "struct_inspector.h"
+#include "inspector_dsl.h"
+#include "binder.h"
 
-#define B_SIZE (8)
-#define C_SIZE (4)
-#define D_SIZE (2)
+#define STR_SIZE (32)
+#define B_SIZE   (8)
+#define C_SIZE   (4)
+#define D_SIZE   (2)
 
-struct D
+typedef struct d_t
 {
-    char value;
-};
+    char value[STR_SIZE];
+} d_t;
 
-struct C
+typedef struct c_t
 {
-    struct D d[D_SIZE];
+    d_t d[D_SIZE];
     double value;
-};
+} c_t;
 
-struct B
+typedef struct b_t
 {
-    struct C c[C_SIZE];
+    c_t c[C_SIZE];
     float value;
-};
+} b_t;
 
-struct A
+typedef struct a_t
 {
-    struct B b[B_SIZE];
+    b_t b[B_SIZE];
     int value;
-};
+} a_t;
+
+STRUCT_INFO_BEGIN(d_t) 
+    FIELD_ARRAY(d_t, value, char, NULL, 1, 32) 
+STRUCT_INFO_END(d_t) 
+
+STRUCT_INFO_BEGIN(c_t) 
+    FIELD_ARRAY(c_t, d, d_t, &d_t_info, 1, D_SIZE) 
+    FIELD_SCALAR(c_t, value, int, NULL) 
+STRUCT_INFO_END(c_t)
+
+STRUCT_INFO_BEGIN(b_t) 
+    FIELD_ARRAY(b_t, c, c_t, &c_t_info, 1, C_SIZE) 
+    FIELD_SCALAR(b_t, value, float, NULL) 
+STRUCT_INFO_END(b_t)
+
+STRUCT_INFO_BEGIN(a_t) 
+    FIELD_ARRAY(a_t, b, b_t, &b_t_info, 1, B_SIZE) 
+    FIELD_SCALAR(a_t, value, int, NULL) 
+STRUCT_INFO_END(a_t)
 
 int main(void)
 {
     inspector_t* inspector = inspector_create();
-    struct A a = {0};
+    a_t a = {0};
 
-    ADD_INSPECTOR_INDEXED(inspector, a.value, int);
+    inspector_bind_struct(inspector, &a_t_info, &a, "a");
 
     for (int i = 0; i < B_SIZE; i++)
     {
-        ADD_INSPECTOR_INDEXED(inspector, a.b[i].value, float, i);
+        a.b[i].value = i * 0.001;
         for (int j = 0; j < C_SIZE; j++)
         {
-            ADD_INSPECTOR_INDEXED(inspector, a.b[i].c[j].value, double, i, j);
+            a.b[i].c[j].value = i + j * 0.001;
             for (int k = 0; k < D_SIZE; k++)
             {
-                ADD_INSPECTOR_INDEXED(inspector, a.b[i].c[j].d[k].value, char, i, j, k);
+                sprintf(a.b[i].c[j].d[k].value, "%d-%d-%d", i, j, k);
             }
         }
     }
@@ -56,11 +78,7 @@ int main(void)
         const char* name = inspector_name_at(inspector, i);
         const char* type = inspector_type_at(inspector, i);
 
-        if (strcmp(type, "char") == 0)
-        {
-            printf("%s found, type=%s, value=%d\n", name, type, *(char*)inspector_get(inspector, name));
-        }
-        else if (strcmp(type, "int") == 0)
+        if (strcmp(type, "int") == 0)
         {
             printf("%s found, type=%s, value=%d\n", name, type, *(int*)inspector_get(inspector, name));
         }
@@ -71,6 +89,19 @@ int main(void)
         else if (strcmp(type, "double") == 0)
         {
             printf("%s found, type=%s, value=%f\n", name, type, *(double*)inspector_get(inspector, name));
+        }
+    }
+
+    char name[STR_SIZE];
+    for (int i = 0; i < B_SIZE; i++)
+    {
+        for (int j = 0; j < C_SIZE; j++)
+        {
+            for (int k = 0; k < D_SIZE; k++)
+            {
+                sprintf(name, "a.b[%d].c[%d].d[%d].value", i, j, k);
+                printf("%s = %s\n", name, (const char*)inspector_get(inspector, name));
+            }
         }
     }
 

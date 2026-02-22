@@ -5,20 +5,20 @@
 #include <stdio.h>
 #include "struct_inspector.h"
 
-typedef struct inspector_value_t 
+typedef struct inspector_value_t
 {
-    char  name[64];
-    char  type[32];
-    void* ref;
-    struct inspector_value_t* next;
+    char name[64];
+    char type[32];
+    void *ref;
+    struct inspector_value_t *next;
 } inspector_value_t;
 
 struct inspector_t
 {
-    inspector_value_t* root;
+    inspector_value_t *root;
 };
 
-static void replace_indicies_string(char* str, int* indices, int indices_len)
+static void replace_indicies_string(char *str, int *indices, int indices_len)
 {
     if (indices == NULL || indices_len == 0)
         return;
@@ -27,9 +27,9 @@ static void replace_indicies_string(char* str, int* indices, int indices_len)
     char tmp[64];
     strcpy(buf, str);
 
-    char* src = buf;
-    char* dst = tmp;
-    int   idx_pos = 0;
+    char *src = buf;
+    char *dst = tmp;
+    int idx_pos = 0;
 
     while (*src && idx_pos < indices_len)
     {
@@ -61,62 +61,59 @@ static void replace_indicies_string(char* str, int* indices, int indices_len)
     strcpy(str, tmp);
 }
 
-inspector_t* inspector_create(void)
+inspector_t *inspector_create(void)
 {
-    inspector_t* ret = (inspector_t*)malloc(sizeof(inspector_t));
-    if (!ret) return NULL;
+    inspector_t *ret = (inspector_t *)malloc(sizeof(inspector_t));
+    if (!ret)
+        return NULL;
     ret->root = NULL;
     return ret;
 }
 
-void inspector_destroy(inspector_t* obj)
+void inspector_destroy(inspector_t *obj)
 {
-    if (!obj) return;
-    inspector_value_t* node = obj->root;
+    if (!obj)
+        return;
+    inspector_value_t *node = obj->root;
     while (node)
     {
-        inspector_value_t* next = node->next;
+        inspector_value_t *next = node->next;
         free(node);
         node = next;
     }
     free(obj);
 }
 
-void inspector_add(inspector_t* obj, const char* name, const char* type, void* ref, int* indices, int indices_len)
+void inspector_add(inspector_t *obj, const char *name, const char *type_name, void *ref)
 {
-    char path[64];
-    strcpy(path, name);
-    replace_indicies_string(path, indices, indices_len);
-
-    inspector_value_t* last_node = NULL;
-    for (inspector_value_t* node = obj->root; node != NULL; node = node->next)
+    inspector_value_t *last = NULL;
+    for (inspector_value_t *node = obj->root; node; node = node->next)
     {
-        last_node = node;
-
-        if (strcmp(node->name, path) == 0 && strcmp(node->type, type) == 0)
+        last = node;
+        if (strcmp(node->name, name) == 0 && strcmp(node->type, type_name) == 0)
         {
             node->ref = ref;
             return;
         }
     }
-
-    inspector_value_t* new_node = (inspector_value_t*)malloc(sizeof(inspector_value_t));
-    if (!new_node) return;
-
-    strcpy(new_node->name, path);
-    strcpy(new_node->type, type);
-    new_node->ref = ref;
-    new_node->next = NULL;
-
-    if (last_node)
-        last_node->next = new_node;
+    inspector_value_t *node = (inspector_value_t *)malloc(sizeof(inspector_value_t));
+    if (!node)
+        return;
+    strncpy(node->name, name, sizeof(node->name) - 1);
+    node->name[sizeof(node->name) - 1] = '\0';
+    strncpy(node->type, type_name, sizeof(node->type) - 1);
+    node->type[sizeof(node->type) - 1] = '\0';
+    node->ref = ref;
+    node->next = NULL;
+    if (last)
+        last->next = node;
     else
-        obj->root = new_node;
+        obj->root = node;
 }
 
-int inspector_contains(const inspector_t* obj, const char* name)
+int inspector_contains(const inspector_t *obj, const char *name)
 {
-    for (inspector_value_t* node = obj->root; node != NULL; node = node->next)
+    for (inspector_value_t *node = obj->root; node != NULL; node = node->next)
     {
         if (strcmp(node->name, name) == 0)
             return 1;
@@ -124,9 +121,9 @@ int inspector_contains(const inspector_t* obj, const char* name)
     return 0;
 }
 
-const char* inspector_type(const inspector_t* obj, const char* name)
+const char *inspector_type(const inspector_t *obj, const char *name)
 {
-    for (inspector_value_t* node = obj->root; node != NULL; node = node->next)
+    for (inspector_value_t *node = obj->root; node != NULL; node = node->next)
     {
         if (strcmp(node->name, name) == 0)
             return node->type;
@@ -134,9 +131,9 @@ const char* inspector_type(const inspector_t* obj, const char* name)
     return NULL;
 }
 
-void* inspector_get(const inspector_t* obj, const char* name)
+void *inspector_get(const inspector_t *obj, const char *name)
 {
-    for (inspector_value_t* node = obj->root; node != NULL; node = node->next)
+    for (inspector_value_t *node = obj->root; node != NULL; node = node->next)
     {
         if (strcmp(node->name, name) == 0)
             return node->ref;
@@ -144,20 +141,20 @@ void* inspector_get(const inspector_t* obj, const char* name)
     return NULL;
 }
 
-int inspector_size(const inspector_t* obj)
+int inspector_size(const inspector_t *obj)
 {
     int len = -1;
-    for (inspector_value_t* node = obj->root; node != NULL; node = node->next)
+    for (inspector_value_t *node = obj->root; node != NULL; node = node->next)
     {
         len++;
     }
-    return len;    
+    return len;
 }
 
-const char* inspector_name_at(const inspector_t* obj, int index)
+const char *inspector_name_at(const inspector_t *obj, int index)
 {
     int len = -1;
-    for (inspector_value_t* node = obj->root; node != NULL; node = node->next)
+    for (inspector_value_t *node = obj->root; node != NULL; node = node->next)
     {
         len++;
         if (index == len)
@@ -168,10 +165,10 @@ const char* inspector_name_at(const inspector_t* obj, int index)
     return NULL;
 }
 
-const char* inspector_type_at(const inspector_t* obj, int index)
+const char *inspector_type_at(const inspector_t *obj, int index)
 {
     int len = -1;
-    for (inspector_value_t* node = obj->root; node != NULL; node = node->next)
+    for (inspector_value_t *node = obj->root; node != NULL; node = node->next)
     {
         len++;
         if (index == len)
