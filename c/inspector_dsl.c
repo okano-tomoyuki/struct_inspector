@@ -83,7 +83,7 @@ void inspect_array_with_path(
     size_t elem_size
 )
 {
-    char path[256];
+    char path[INSPECTOR_PATH_MAX];
 
     if (dim == dim_count)
     {
