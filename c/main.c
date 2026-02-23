@@ -3,8 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "struct_inspector.h"
+
+#define ENABLE_STRUCT_INSEPCTOR_BIND_DSL
 #include "inspector_dsl.h"
-#include "binder.h"
 
 #define STR_SIZE (32)
 #define B_SIZE   (8)
@@ -31,27 +32,31 @@ typedef struct b_t
 typedef struct a_t
 {
     b_t b[B_SIZE];
+    c_t c[B_SIZE][C_SIZE];
+    d_t d[B_SIZE][C_SIZE][D_SIZE];
     int value;
 } a_t;
 
-STRUCT_INFO_BEGIN(d_t) 
-    FIELD_ARRAY(d_t, value, char, NULL, 1, 32) 
-STRUCT_INFO_END(d_t) 
+RESISTER_STRUCT_INFO_BEGIN(d_t) 
+    RESISTER_FIELD_ARRAY(d_t, value, char, NULL, 1, STR_SIZE) 
+RESISTER_STRUCT_INFO_END(d_t) 
 
-STRUCT_INFO_BEGIN(c_t) 
-    FIELD_ARRAY(c_t, d, d_t, &d_t_info, 1, D_SIZE) 
-    FIELD_SCALAR(c_t, value, int, NULL) 
-STRUCT_INFO_END(c_t)
+RESISTER_STRUCT_INFO_BEGIN(c_t) 
+    RESISTER_FIELD_ARRAY(c_t, d, d_t, &d_t_info, 1, D_SIZE) 
+    RESISTER_FIELD_SCALAR(c_t, value, double, NULL) 
+RESISTER_STRUCT_INFO_END(c_t)
 
-STRUCT_INFO_BEGIN(b_t) 
-    FIELD_ARRAY(b_t, c, c_t, &c_t_info, 1, C_SIZE) 
-    FIELD_SCALAR(b_t, value, float, NULL) 
-STRUCT_INFO_END(b_t)
+RESISTER_STRUCT_INFO_BEGIN(b_t) 
+    RESISTER_FIELD_ARRAY(b_t, c, c_t, &c_t_info, 1, C_SIZE) 
+    RESISTER_FIELD_SCALAR(b_t, value, float, NULL) 
+RESISTER_STRUCT_INFO_END(b_t)
 
-STRUCT_INFO_BEGIN(a_t) 
-    FIELD_ARRAY(a_t, b, b_t, &b_t_info, 1, B_SIZE) 
-    FIELD_SCALAR(a_t, value, int, NULL) 
-STRUCT_INFO_END(a_t)
+RESISTER_STRUCT_INFO_BEGIN(a_t) 
+    RESISTER_FIELD_ARRAY(a_t, b, b_t, &b_t_info, 1, B_SIZE) 
+    RESISTER_FIELD_ARRAY(a_t, c, c_t, &c_t_info, 2, B_SIZE, C_SIZE) 
+    RESISTER_FIELD_ARRAY(a_t, d, d_t, &d_t_info, 3, B_SIZE, C_SIZE, D_SIZE) 
+    RESISTER_FIELD_SCALAR(a_t, value, int, NULL) 
+RESISTER_STRUCT_INFO_END(a_t)
 
 int main(void)
 {
@@ -78,7 +83,11 @@ int main(void)
         const char* name = inspector_name_at(inspector, i);
         const char* type = inspector_type_at(inspector, i);
 
-        if (strcmp(type, "int") == 0)
+        if (strcmp(type, "char") == 0)
+        {
+            printf("%s found, type=%s, value=%c\n", name, type, *(char*)inspector_get(inspector, name));
+        }
+        else if (strcmp(type, "int") == 0)
         {
             printf("%s found, type=%s, value=%d\n", name, type, *(int*)inspector_get(inspector, name));
         }

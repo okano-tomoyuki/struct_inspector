@@ -13,11 +13,4 @@ int             inspector_size(const inspector_t* obj);
 const char*     inspector_name_at(const inspector_t* obj, int index);
 const char*     inspector_type_at(const inspector_t* obj, int index);
 
-/* 可変長引数あり版（配列要素） */
-#define ADD_INSPECTOR_INDEXED(obj, member, type, ...) \
-    do { int indices[] = { __VA_ARGS__ }; inspector_add(obj, #member, #type, &(member), indices, (int)(sizeof(indices) / sizeof(int))); } while (0)
-
-#define ADD_INSPECTOR(obj, member, type) \
-    do { inspector_add(obj, #member, #type, &(member), NULL, 0); } while (0)
-
-#endif //
+#endif

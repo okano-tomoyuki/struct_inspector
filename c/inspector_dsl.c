@@ -1,25 +1,32 @@
 #include <stdio.h>
 #include <string.h>
-#include "binder.h"
+#include "inspector_dsl.h"
+#include "struct_inspector.h"
 
-static void inspector_register_cb(
-    const char *full_path,
-    void *value_ptr,
-    size_t size,
-    const char *type_name,
-    void *user_data)
-{
-    (void)size;
-    inspector_t *insp = (inspector_t *)user_data;
-    inspector_add(insp, full_path, type_name, value_ptr);
-}
+static void inspect_struct_with_path(
+    const struct_info_t *info,
+    void *obj,
+    const char *parent_path,
+    void *user_data
+);
+
+static void inspect_array_with_path(
+    const struct_info_t *elem_info,
+    char *base,
+    const char *parent_path,
+    void *user_data,
+    size_t dim,
+    size_t dim_count,
+    const size_t *dims,
+    size_t elem_size
+);
 
 void inspect_struct_with_path(
     const struct_info_t *info,
     void *obj,
     const char *parent_path,
-    inspect_callback_t cb,
-    void *user_data)
+    void *user_data
+)
 {
     char path[256];
 
@@ -41,7 +48,7 @@ void inspect_struct_with_path(
         {
             if (f->dim_count == 0)
             {
-                inspect_struct_with_path(f->nested, ptr, path, cb, user_data);
+                inspect_struct_with_path(f->nested, ptr, path, user_data);
             }
             else
             {
@@ -49,7 +56,6 @@ void inspect_struct_with_path(
                     f->nested,
                     (char *)ptr,
                     path,
-                    cb,
                     user_data,
                     0,
                     f->dim_count,
@@ -60,7 +66,7 @@ void inspect_struct_with_path(
         }
         else
         {
-            cb(path, ptr, f->size, f->type_name, user_data);
+            inspector_add((inspector_t*)user_data, path, f->type_name, ptr);
         }
     }
 }
@@ -69,18 +75,18 @@ void inspect_array_with_path(
     const struct_info_t *elem_info,
     char *base,
     const char *parent_path,
-    inspect_callback_t cb,
     void *user_data,
     size_t dim,
     size_t dim_count,
     const size_t *dims,
-    size_t elem_size)
+    size_t elem_size
+)
 {
     char path[256];
 
     if (dim == dim_count)
     {
-        inspect_struct_with_path(elem_info, base, parent_path, cb, user_data);
+        inspect_struct_with_path(elem_info, base, parent_path, user_data);
         return;
     }
 
@@ -95,7 +101,6 @@ void inspect_array_with_path(
             elem_info,
             base + i * stride,
             path,
-            cb,
             user_data,
             dim + 1,
             dim_count,
@@ -109,14 +114,15 @@ void inspector_bind_struct(
     inspector_t *insp,
     const struct_info_t *info,
     void *obj,
-    const char *prefix)
+    const char *prefix
+)
 {
     if (prefix && prefix[0] != '\0')
     {
-        inspect_struct_with_path(info, obj, prefix, inspector_register_cb, insp);
+        inspect_struct_with_path(info, obj, prefix, insp);
     }
     else
     {
-        inspect_struct_with_path(info, obj, "", inspector_register_cb, insp);
+        inspect_struct_with_path(info, obj, "", insp);
     }
 }
