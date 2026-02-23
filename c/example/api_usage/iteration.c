@@ -1,5 +1,5 @@
 /*!
- * @file api_usage_iteration.c
+ * @file iteration.c
  * @brief Using inspector_context API to iterate and inspect struct fields.
  *
  * Demonstrates inspector_context_name_at(), inspector_context_type_at(),

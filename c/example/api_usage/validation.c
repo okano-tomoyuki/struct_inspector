@@ -1,5 +1,5 @@
 /*!
- * @file api_usage_validation.c
+ * @file validation.c
  * @brief Using inspector_context API for runtime type validation and access.
  *
  * Demonstrates the practical value of inspector_context_contains(),

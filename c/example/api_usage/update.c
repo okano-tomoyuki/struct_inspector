@@ -1,5 +1,5 @@
 /*!
- * @file api_usage_update.c
+ * @file update.c
  * @brief Using inspector_context to safely update and manipulate data.
  *
  * Demonstrates inspector_context_update() for safe data replacement,
