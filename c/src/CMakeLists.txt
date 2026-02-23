@@ -8,5 +8,5 @@ add_library(${lib_name}
 
 target_include_directories(${lib_name}
     PRIVATE
-        ${INSPECTOR_BASE_DIR}/include
+        ${INSPECTOR_BUILD_BASE_DIR}/include
 )
