@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 #include "inspector_config.h"
-#include "struct_inspector.h"
+#include "inspector.h"
 
 typedef struct inspector_value_t
 {

@@ -1,5 +1,5 @@
-#ifndef STRUCT_INSPECTOR_H
-#define STRUCT_INSPECTOR_H
+#ifndef INSPECTOR_H
+#define INSPECTOR_H
 
 typedef struct inspector_t inspector_t;
 
@@ -13,4 +13,4 @@ int             inspector_size(const inspector_t* obj);
 const char*     inspector_name_at(const inspector_t* obj, int index);
 const char*     inspector_type_at(const inspector_t* obj, int index);
 
-#endif
+#endif // INSPECTOR_H

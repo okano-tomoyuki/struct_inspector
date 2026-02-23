@@ -1,18 +1,18 @@
 #include <stdio.h>
 #include <string.h>
 #include "inspector_config.h"
+#include "inspector.h"
 #include "inspector_dsl.h"
-#include "struct_inspector.h"
 
 static void inspect_struct_with_path(
-    const struct_info_t *info,
+    const inspector_struct_info_t *info,
     void *obj,
     const char *parent_path,
     void *user_data
 );
 
 static void inspect_array_with_path(
-    const struct_info_t *elem_info,
+    const inspector_struct_info_t *elem_info,
     char *base,
     const char *parent_path,
     void *user_data,
@@ -23,7 +23,7 @@ static void inspect_array_with_path(
 );
 
 void inspect_struct_with_path(
-    const struct_info_t *info,
+    const inspector_struct_info_t *info,
     void *obj,
     const char *parent_path,
     void *user_data
@@ -33,7 +33,7 @@ void inspect_struct_with_path(
 
     for (size_t i = 0; i < info->field_count; i++)
     {
-        const field_info_t *f = &info->fields[i];
+        const inspector_field_info_t *f = &info->fields[i];
         void *ptr = (char *)obj + f->offset;
 
         if (parent_path[0] == '\0')
@@ -73,7 +73,7 @@ void inspect_struct_with_path(
 }
 
 void inspect_array_with_path(
-    const struct_info_t *elem_info,
+    const inspector_struct_info_t *elem_info,
     char *base,
     const char *parent_path,
     void *user_data,
@@ -113,7 +113,7 @@ void inspect_array_with_path(
 
 void inspector_bind_struct(
     inspector_t *insp,
-    const struct_info_t *info,
+    const inspector_struct_info_t *info,
     void *obj,
     const char *prefix
 )

@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include "struct_inspector.h"
+#include "inspector.h"
+#include "inspector_context.h"
 
 #define ENABLE_STRUCT_INSEPCTOR_BIND_DSL
 #include "inspector_dsl.h"
@@ -60,60 +60,84 @@ REGISTER_STRUCT_INFO_END(a_t)
 
 int main(void)
 {
-    inspector_t* inspector = inspector_create();
+    /* inspector_context を作成（メモリ確保 + バインド） */
+    inspector_context_t* ctx = inspector_context_create(&a_t_info, "a");
+    if (!ctx)
+    {
+        fprintf(stderr, "Failed to create inspector context\n");
+        return 1;
+    }
+
+    /* 初期データをコンテキストにセット */
     a_t a = {0};
+    if (inspector_context_update(ctx, &a) != 0)
+    {
+        fprintf(stderr, "Failed to update context\n");
+        inspector_context_destroy(ctx);
+        return 1;
+    }
 
-    inspector_bind_struct(inspector, &a_t_info, &a, "a");
+    /* コンテキストが所有するポインタを取得 */
+    a_t* a_ptr = (a_t*)inspector_context_get_data(ctx);
+    if (!a_ptr)
+    {
+        fprintf(stderr, "Failed to get data\n");
+        inspector_context_destroy(ctx);
+        return 1;
+    }
 
+    /* データを設定 */
     for (int i = 0; i < B_SIZE; i++)
     {
-        a.b[i].value = i * 0.001;
+        a_ptr->b[i].value = i * 0.001;
         for (int j = 0; j < C_SIZE; j++)
         {
-            a.b[i].c[j].value = i + j * 0.001;
+            a_ptr->b[i].c[j].value = i + j * 0.001;
             for (int k = 0; k < D_SIZE; k++)
             {
-                sprintf(a.b[i].c[j].d[k].value, "%d-%d-%d", i, j, k);
+                sprintf(a_ptr->b[i].c[j].d[k].value, "%d-%d-%d", i, j, k);
             }
         }
     }
+    a_ptr->value = 42;
 
-    for (int i = 0; i < inspector_size(inspector); i++)
+    /* データアクセスの例 */
+    printf("=== Data Access Examples ===\n");
+    printf("a.value = %d\n", a_ptr->value);
+    printf("a.b[0].value = %f\n", a_ptr->b[0].value);
+    printf("a.b[1].c[0].value = %f\n", a_ptr->b[1].c[0].value);
+    printf("a.b[2].c[1].d[0].value = %s\n", a_ptr->b[2].c[1].d[0].value);
+    printf("a.b[7].c[3].value = %f\n", a_ptr->b[7].c[3].value);
+
+    /* データをコンテキストに反映（変更後） */
+    if (inspector_context_update(ctx, a_ptr) != 0)
     {
-        const char* name = inspector_name_at(inspector, i);
-        const char* type = inspector_type_at(inspector, i);
-
-        if (strcmp(type, "char") == 0)
-        {
-            printf("%s found, type=%s, value=%c\n", name, type, *(char*)inspector_get(inspector, name));
-        }
-        else if (strcmp(type, "int") == 0)
-        {
-            printf("%s found, type=%s, value=%d\n", name, type, *(int*)inspector_get(inspector, name));
-        }
-        else if (strcmp(type, "float") == 0)
-        {
-            printf("%s found, type=%s, value=%f\n", name, type, *(float*)inspector_get(inspector, name));
-        }
-        else if (strcmp(type, "double") == 0)
-        {
-            printf("%s found, type=%s, value=%f\n", name, type, *(double*)inspector_get(inspector, name));
-        }
+        fprintf(stderr, "Failed to update context\n");
+        inspector_context_destroy(ctx);
+        return 1;
     }
 
-    char name[STR_SIZE];
+    /* 別のデータで更新（動的更新の例） */
+    a_t a2 = {0};
+    a2.value = 100;
     for (int i = 0; i < B_SIZE; i++)
     {
-        for (int j = 0; j < C_SIZE; j++)
-        {
-            for (int k = 0; k < D_SIZE; k++)
-            {
-                sprintf(name, "a.b[%d].c[%d].d[%d].value", i, j, k);
-                printf("%s = %s\n", name, (const char*)inspector_get(inspector, name));
-            }
-        }
+        a2.b[i].value = i * 0.01;
+    }
+    if (inspector_context_update(ctx, &a2) != 0)
+    {
+        fprintf(stderr, "Failed to update context with new data\n");
+        inspector_context_destroy(ctx);
+        return 1;
     }
 
-    inspector_destroy(inspector);
+    /* 更新後のデータを取得 */
+    a_ptr = (a_t*)inspector_context_get_data(ctx);
+    printf("\n=== After Update ===\n");
+    printf("a.value = %d\n", a_ptr->value);
+    printf("a.b[3].value = %f\n", a_ptr->b[3].value);
+
+    /* クリーンアップ */
+    inspector_context_destroy(ctx);
     return 0;
 }

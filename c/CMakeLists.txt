@@ -1,5 +1,6 @@
 add_executable(c_struct_inspector
     main.c
-    struct_inspector.c
+    inspector.c
     inspector_dsl.c
+    inspector_context.c
 )

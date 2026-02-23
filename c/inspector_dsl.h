@@ -1,40 +1,40 @@
-#ifndef STRUCT_META_H
-#define STRUCT_META_H
+#ifndef INSPECTOR_DSL_H
+#define INSPECTOR_DSL_H
 
 #include <stddef.h>
 
-typedef struct struct_info_t struct_info_t;
+typedef struct inspector_struct_info_t inspector_struct_info_t;
 typedef struct inspector_t inspector_t;
 
-typedef struct field_info_t {
-    const char*           name;
-    size_t                offset;
-    size_t                size;
-    const char*           type_name;
-    const struct_info_t*  nested;
-    size_t                dim_count;
-    const size_t*         dims;  /* ポインタに変更：動的に多次元配列に対応可能 */
-} field_info_t;
+typedef struct inspector_field_info_t {
+    const char*                     name;
+    size_t                          offset;
+    size_t                          size;
+    const char*                     type_name;
+    const inspector_struct_info_t*  nested;
+    size_t                          dim_count;
+    const size_t*                   dims;  
+} inspector_field_info_t;
 
-struct struct_info_t {
-    const char*      struct_name;
-    size_t           size;
-    size_t           field_count;
-    const field_info_t* fields;
+struct inspector_struct_info_t {
+    const char*                     struct_name;
+    size_t                          size;
+    size_t                          field_count;
+    const inspector_field_info_t*   fields;
 };
 
-void inspector_bind_struct(inspector_t *insp, const struct_info_t *info, void *obj, const char *prefix);
+void inspector_bind_struct(inspector_t *insp, const inspector_struct_info_t *info, void *obj, const char *prefix);
 
 #ifdef ENABLE_STRUCT_INSEPCTOR_BIND_DSL
 
 #define REGISTER_STRUCT_INFO_BEGIN(T) \
-    static const field_info_t T##_fields[] = {
+    static const inspector_field_info_t T##_fields[] = {
 
 #define REGISTER_STRUCT_INFO_END(T) \
     }; \
-    const struct_info_t T##_info = { \
+    const inspector_struct_info_t T##_info = { \
         #T, sizeof(T), \
-        sizeof(T##_fields)/sizeof(field_info_t), \
+        sizeof(T##_fields)/sizeof(inspector_field_info_t), \
         T##_fields \
     };
 
@@ -71,4 +71,4 @@ void inspector_bind_struct(inspector_t *insp, const struct_info_t *info, void *o
 
 #endif
 
-#endif /* STRUCT_META_H */
+#endif // INSPECTOR_DSL
