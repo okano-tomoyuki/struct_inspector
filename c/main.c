@@ -37,26 +37,26 @@ typedef struct a_t
     int value;
 } a_t;
 
-RESISTER_STRUCT_INFO_BEGIN(d_t) 
-    RESISTER_FIELD_ARRAY(d_t, value, char, NULL, 1, STR_SIZE) 
-RESISTER_STRUCT_INFO_END(d_t) 
+REGISTER_STRUCT_INFO_BEGIN(d_t) 
+    REGISTER_FIELD_ARRAY(d_t, value, char, NULL, 1, STR_SIZE) 
+REGISTER_STRUCT_INFO_END(d_t) 
 
-RESISTER_STRUCT_INFO_BEGIN(c_t) 
-    RESISTER_FIELD_ARRAY(c_t, d, d_t, &d_t_info, 1, D_SIZE) 
-    RESISTER_FIELD_SCALAR(c_t, value, double, NULL) 
-RESISTER_STRUCT_INFO_END(c_t)
+REGISTER_STRUCT_INFO_BEGIN(c_t) 
+    REGISTER_FIELD_ARRAY(c_t, d, d_t, &d_t_info, 1, D_SIZE) 
+    REGISTER_FIELD_SCALAR(c_t, value, double, NULL) 
+REGISTER_STRUCT_INFO_END(c_t)
 
-RESISTER_STRUCT_INFO_BEGIN(b_t) 
-    RESISTER_FIELD_ARRAY(b_t, c, c_t, &c_t_info, 1, C_SIZE) 
-    RESISTER_FIELD_SCALAR(b_t, value, float, NULL) 
-RESISTER_STRUCT_INFO_END(b_t)
+REGISTER_STRUCT_INFO_BEGIN(b_t) 
+    REGISTER_FIELD_ARRAY(b_t, c, c_t, &c_t_info, 1, C_SIZE) 
+    REGISTER_FIELD_SCALAR(b_t, value, float, NULL) 
+REGISTER_STRUCT_INFO_END(b_t)
 
-RESISTER_STRUCT_INFO_BEGIN(a_t) 
-    RESISTER_FIELD_ARRAY(a_t, b, b_t, &b_t_info, 1, B_SIZE) 
-    RESISTER_FIELD_ARRAY(a_t, c, c_t, &c_t_info, 2, B_SIZE, C_SIZE) 
-    RESISTER_FIELD_ARRAY(a_t, d, d_t, &d_t_info, 3, B_SIZE, C_SIZE, D_SIZE) 
-    RESISTER_FIELD_SCALAR(a_t, value, int, NULL) 
-RESISTER_STRUCT_INFO_END(a_t)
+REGISTER_STRUCT_INFO_BEGIN(a_t) 
+    REGISTER_FIELD_ARRAY(a_t, b, b_t, &b_t_info, 1, B_SIZE) 
+    REGISTER_FIELD_ARRAY(a_t, c, c_t, &c_t_info, 2, B_SIZE, C_SIZE) 
+    REGISTER_FIELD_ARRAY(a_t, d, d_t, &d_t_info, 3, B_SIZE, C_SIZE, D_SIZE) 
+    REGISTER_FIELD_SCALAR(a_t, value, int, NULL) 
+REGISTER_STRUCT_INFO_END(a_t)
 
 int main(void)
 {

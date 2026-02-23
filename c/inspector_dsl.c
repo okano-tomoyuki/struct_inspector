@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include "inspector_config.h"
 #include "inspector_dsl.h"
 #include "struct_inspector.h"
 
@@ -28,7 +29,7 @@ void inspect_struct_with_path(
     void *user_data
 )
 {
-    char path[256];
+    char path[INSPECTOR_PATH_MAX];
 
     for (size_t i = 0; i < info->field_count; i++)
     {
