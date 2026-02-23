@@ -4,7 +4,7 @@
 #include "inspector.h"
 #include "inspector_context.h"
 
-#define ENABLE_STRUCT_INSEPCTOR_BIND_DSL
+#define ENABLE_INSEPCTOR_BIND_DSL
 #include "inspector_dsl.h"
 
 #define STR_SIZE (32)

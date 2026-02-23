@@ -1,8 +1,9 @@
 #ifndef INSPECTOR_CONFIG_H
 #define INSPECTOR_CONFIG_H
 
-#define INSPECTOR_NAME_MAX      128
-#define INSPECTOR_TYPE_MAX      64
-#define INSPECTOR_PATH_MAX      512
+#define INSPECTOR_NAME_MAX             128
+#define INSPECTOR_TYPE_MAX             64
+#define INSPECTOR_PATH_MAX             512
+#define INSPECTOR_STRUCT_INFO_POSTFIX  _info
 
 #endif

@@ -25,14 +25,20 @@ struct inspector_struct_info_t {
 
 void inspector_bind_struct(inspector_t *insp, const inspector_struct_info_t *info, void *obj, const char *prefix);
 
-#ifdef ENABLE_STRUCT_INSEPCTOR_BIND_DSL
+#ifdef ENABLE_INSEPCTOR_BIND_DSL
+
+#include "inspector_config.h"
+
+#define _INSPECTOR_CONCAT_IMPL(a, b) a ## b
+#define _INSPECTOR_CONCAT(a, b) _INSPECTOR_CONCAT_IMPL(a, b)
+#define _INSPECTOR_CONCAT_POSTFIX(T) _INSPECTOR_CONCAT(T, INSPECTOR_STRUCT_INFO_POSTFIX)
 
 #define REGISTER_STRUCT_INFO_BEGIN(T) \
     static const inspector_field_info_t T##_fields[] = {
 
 #define REGISTER_STRUCT_INFO_END(T) \
     }; \
-    const inspector_struct_info_t T##_info = { \
+    static const inspector_struct_info_t _INSPECTOR_CONCAT_POSTFIX(T) = { \
         #T, sizeof(T), \
         sizeof(T##_fields)/sizeof(inspector_field_info_t), \
         T##_fields \
@@ -64,11 +70,6 @@ void inspector_bind_struct(inspector_t *insp, const inspector_struct_info_t *inf
 #define REGISTER_FIELD_ARRAY_MUL_11(d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11) ((d1)*(d2)*(d3)*(d4)*(d5)*(d6)*(d7)*(d8)*(d9)*(d10)*(d11))
 #define REGISTER_FIELD_ARRAY_MUL_12(d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12) ((d1)*(d2)*(d3)*(d4)*(d5)*(d6)*(d7)*(d8)*(d9)*(d10)*(d11)*(d12))
 
-/* 
- * 12次元以上の多次元配列に対応したい場合は、同じパターンで追加定義してください。
- * 例：13次元の場合、REGISTER_FIELD_ARRAY_MUL_13 を追加
- */
-
-#endif
+#endif // ENABLE_INSPECTOR_BIND_DSL
 
 #endif // INSPECTOR_DSL
